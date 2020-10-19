@@ -1,0 +1,27 @@
+*.pyc
+*.*~
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+local_settings.py
+
+.vscode/
+.idea/
+.venv/
+.DS_Store
+
+media/
+
+/db.sqlite3
+/db_stellar_expert.sqlite3
+
+celerybeat-schedule.db
+
+/tags
