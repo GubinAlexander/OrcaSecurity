@@ -6,5 +6,10 @@ Instructions:
   - ./manage.py migrate
   - ./manage.py runserver
 
-Tests:
+Testing:
+  - cd data_inputs/
+  - curl -X POST -H "Content-Type: application/json" --data "$(cat input-1.json)" http://127.0.0.1:8000/api/v1/attack\?vm_id\=vm-a211de
+  - curl -X POST -H "Content-Type: application/json" --data "$(cat input-2.json)" http://127.0.0.1:8000/api/v1/stats/
+
+Unit tests:
   - ./manage.py test 
