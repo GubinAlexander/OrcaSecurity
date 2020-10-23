@@ -1,7 +1,9 @@
 
 from typing import Union
 
-from attack_surface_service.models import Statistic
+from django.conf import settings
+from rest_framework import status
+from rest_framework.response import Response
 
 
 def get_attacked_vm(vms: list, vm_id: str) -> bool:
@@ -10,7 +12,7 @@ def get_attacked_vm(vms: list, vm_id: str) -> bool:
             return vm
 
 
-def get_rules_allow_destination_traffic(rules: dict, vm: Union[dict, bool]) -> list:
+def get_rules_allow_destination_traffic(rules: list, vm: Union[dict, bool]) -> list:
     result = []
     for rule in rules:
         if rule['dest_tag'] in vm['tags']:
@@ -18,25 +20,21 @@ def get_rules_allow_destination_traffic(rules: dict, vm: Union[dict, bool]) -> l
     return result
 
 
-def get_machines_can_potentially_attack(rules: list, vms: list, vm_id: str) -> list:
+def get_machines_can_potentially_attack(rules: list, vms: list, vm_id: str) -> Union[list, Response]:
+    attacked_vm = get_attacked_vm(vms, vm_id)
+    if not attacked_vm:
+        return Response(data='There is no virtual machine with this id', status=status.HTTP_404_NOT_FOUND)
+
     result = []
-    for rule in rules:
+    allow_destination_rules = get_rules_allow_destination_traffic(rules, attacked_vm)
+    for rule in allow_destination_rules:
         for vm in vms:
-            if rule['source_tag'] in vm['tags'] and vm['vm_id'] != vm_id:
-                result.append(vm)
+            if rule['source_tag'] in vm['tags'] and vm['vm_id'] != vm_id and vm['vm_id'] not in result:
+                result.append(vm['vm_id'])
     return result
 
 
 def statistic_calculation(executing_time: float) -> None:
-    statistic = Statistic.objects.all().last()
-    statistic.request_count += 1
-    statistic.average_request_time = (statistic.average_request_time + executing_time) / statistic.request_count
-    statistic.save()
-
-
-def reset_statistic():
-    from attack_surface_service.models import Statistic
-
-    Statistic.objects.all().delete()
-    statistic = Statistic.objects.create(request_count=0, average_request_time=0)
-    statistic.save()
+    settings.STATISTIC['request_count'] += 1
+    average_request_time = settings.STATISTIC['average_request_time']
+    settings.STATISTIC['average_request_time'] = (average_request_time + executing_time) / settings.STATISTIC['request_count']

@@ -19,10 +19,6 @@ class CloudEnvironmentSerializer(serializers.Serializer):
     fw_rules = FirewallRuleSerializer(many=True)
 
 
-class VirtualMachineResponseSerializer(serializers.Serializer):
-    vm_id = serializers.CharField()
-
-
 class StatisticResponseSerializer(serializers.Serializer):
     request_count = serializers.IntegerField()
     average_request_time = serializers.FloatField()

@@ -119,3 +119,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATISTIC = {'request_count': 0, 'average_request_time': 0, 'vm_count': 0}
